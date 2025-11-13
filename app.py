@@ -26,22 +26,30 @@ experience = st.selectbox("Experience Level", ["Beginner", "Intermediate", "Adva
 bmi = st.number_input("BMI", 0.0, 50.0, 22.0)
 
 if st.button("Predict Calories Burned"):
+    # Encode categorical variables the same way as in training
+    gender_num = 1 if gender == "Male" else 0
+    workout_map = {"Cardio": 0, "Strength": 1, "Flexibility": 2}
+    experience_map = {"Beginner": 0, "Intermediate": 1, "Advanced": 2}
+
     df = pd.DataFrame([{
         "Age": age,
-        "Gender": 1 if gender == "Male" else 0,
+        "Gender": gender_num,
         "Weight (kg)": weight,
         "Height (m)": height,
         "Max_Heart_Rate": max_hr,
         "Avg_Heart_Rate": avg_hr,
         "Resting_Heart_Rate": rest_hr,
         "Session_Duration (hours)": duration,
-        "Workout_Type": workout_type,
+        "Workout_Type": workout_map[workout_type],
         "Fat_Percentage": fat,
         "Water_Intake (liters)": water,
         "Workout_Frequency (days/week)": freq,
-        "Experience_Level": experience,
+        "Experience_Level": experience_map[experience],
         "BMI": bmi
     }])
 
-    prediction = model.predict(df)
-    st.success(f"🔥 Estimated Calories Burned: {prediction[0]:.2f}")
+    try:
+        prediction = model.predict(df)
+        st.success(f"🔥 Estimated Calories Burned: {prediction[0]:.2f}")
+    except Exception as e:
+        st.error(f"Error during prediction: {e}")
